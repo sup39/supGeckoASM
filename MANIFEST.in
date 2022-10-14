@@ -1,0 +1,2 @@
+include src/supGeckoASM/include/*
+include src/supGeckoASM/ldscript/*
