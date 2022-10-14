@@ -1,2 +1,2 @@
-include src/supGeckoASM/include/*
-include src/supGeckoASM/ldscript/*
+include src/supSMSASM/include/*
+include src/supSMSASM/ldscript/*

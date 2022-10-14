@@ -18,6 +18,8 @@ def pbcopy(content):
   win32clipboard.SetClipboardText(content)
   win32clipboard.CloseClipboard()
 
+logger = logging.getLogger('supGeckoCode')
+
 def normalize_dolver(s):
   if re.match(r'^(?:JP?|N(?:TSC)?[-_]?J)(?:1\.?0|\.0)?$|^1\.0$', s):
     return 'NTSC-J_1.0'
@@ -97,7 +99,7 @@ def asm2gecko(fnIn, dolver):
       if sec == '.text':
         asmSymbs[name] = addr
       else:
-        if name == '$$' and int(addr) == 0:
+        if name == '$$' and int(addr, 16) == 0:
           isC2 = True
         m = re.match(r'\$(bl?|C2)\$(.*)', name)
         if m is None: continue
@@ -185,7 +187,6 @@ def asm2gecko(fnIn, dolver):
 
 def main():
   logging.basicConfig()
-  logger = logging.getLogger('supGeckoCode')
 
   # check required bin
   for exe in ['powerpc-eabi-as', 'powerpc-eabi-ld', 'powerpc-eabi-objdump', 'powerpc-eabi-objcopy']:
