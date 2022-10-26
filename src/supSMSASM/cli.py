@@ -18,7 +18,7 @@ def pbcopy(content):
   win32clipboard.SetClipboardText(content)
   win32clipboard.CloseClipboard()
 
-logger = logging.getLogger('supGeckoCode')
+logger = logging.getLogger('supSMSASM')
 
 def normalize_dolver(s):
   if re.match(r'^(?:JP?|N(?:TSC)?[-_]?J)(?:1\.?0|\.0)?$|^1\.0$', s):
@@ -55,6 +55,7 @@ def asm2gecko(fnIn, dolver):
     # assemble
     if system([
       'powerpc-eabi-as',
+      '-mregnames', '-mgekko',
       '-o', distOBJ,
       '-I', includeDir,
       distASM,
