@@ -25,10 +25,10 @@ def normalize_dolver(s):
     return 'NTSC-J_1.0'
   if re.match(r'^(?:JP?A|N(?:TSC)?[-_]?J)(?:1\.?1|\.1|A)?$|^1\.1$', s):
     return 'NTSC-J_1.1'
-  #if re.match(r'^EU|P|PAL$', s):
-  #  return 'PAL'
-  #if re.match(r'^US?|N(?:TSC)?[-_]?U$', s):
-  #  return 'NTSC-U'
+  if re.match(r'^EU|P|PAL$', s):
+    return 'PAL'
+  if re.match(r'^US?|N(?:TSC)?[-_]?U$', s):
+    return 'NTSC-U'
   return None
 
 def system(argv, *args, **kwargs):
@@ -197,7 +197,7 @@ def main():
   argv = sys.argv
   argc = len(argv)
   if argc <= 1:
-    logger.error('Usage: %s {*.s} [JP|JPA]'%argv[0])
+    logger.error('Usage: %s {*.s} [JP|JPA|EU|US]'%argv[0])
     sys.exit(1)
 
   fnIn = argv[1]
