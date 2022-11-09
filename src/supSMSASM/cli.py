@@ -95,7 +95,9 @@ def asm2gecko(fnIn, dolver):
     for line in lines[8:]:
       if not re.match('^[0-9a-f]{8} \w', line): continue
       cols = line.split()
-      if len(cols) != 5: continue
+      if len(cols) == 6 and cols[2] == 'F': # @function
+        cols = cols[:2]+cols[3:]
+      elif len(cols) != 5: continue
       addr, _, sec, _, name = cols
       if sec == '.text':
         asmSymbs[name] = addr
