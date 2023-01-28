@@ -21,14 +21,14 @@ def pbcopy(content):
 logger = logging.getLogger('supSMSASM')
 
 def normalize_dolver(s):
-  if re.match(r'^(?:JP?|N(?:TSC)?[-_]?J)(?:1\.?0|\.0)?$|^1\.0$', s):
-    return 'NTSC-J_1.0'
-  if re.match(r'^(?:JP?A|N(?:TSC)?[-_]?J)(?:1\.?1|\.1|A)?$|^1\.1$', s):
-    return 'NTSC-J_1.1'
-  if re.match(r'^EU|P|PAL$', s):
-    return 'PAL'
-  if re.match(r'^US?|N(?:TSC)?[-_]?U$', s):
-    return 'NTSC-U'
+  if re.match(r'^(?:JP?|N(?:TSC)?[-_]?J)(?:1\.?0|\.0)?$|^1\.0$|^GMSJ01$', s):
+    return 'GMSJ01'
+  if re.match(r'^(?:JP?A|N(?:TSC)?[-_]?J)(?:1\.?1|\.1|A)?$|^1\.1$|^GMSJ0A$', s):
+    return 'GMSJ0A'
+  if re.match(r'^EU|P|PAL|^GMSP01$', s):
+    return 'GMSP01'
+  if re.match(r'^US?|N(?:TSC)?[-_]?U|^GMSE01$', s):
+    return 'GMSE01'
   return None
 
 def system(argv, *args, **kwargs):
@@ -49,6 +49,7 @@ def asm2gecko(fnIn, dolver):
   try:
     # include macros.inc
     with open(distASM, 'w') as fw, open(fnIn, 'r') as fr:
+      print(f'.set __VERSION__, {dolver}', file=fw)
       print(f'.include "macros.inc"', file=fw)
       for line in fr: fw.write(line)
 
@@ -203,7 +204,7 @@ def main():
     sys.exit(1)
 
   fnIn = argv[1]
-  dolver = normalize_dolver(argv[2]) if argc > 2 else 'NTSC-J_1.0'
+  dolver = normalize_dolver(argv[2]) if argc > 2 else 'GMSJ01'
   if dolver is None:
     logger.error('Unknown dol version: %s'%argv[2])
     sys.exit(1)

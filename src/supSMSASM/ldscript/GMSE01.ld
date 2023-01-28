@@ -1,4 +1,5 @@
 "SMS__NTSC-U" = 1;
+"SMS__GMSE01" = 1;
 "SMS__US" = 1;
 "$r13" = 0x804141c0;
 "TRK_MINNOW_DOLPHIN.TRK_memcpy" = 0x80003244;
