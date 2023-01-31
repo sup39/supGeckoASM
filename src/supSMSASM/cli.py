@@ -204,26 +204,38 @@ def main():
     sys.exit(1)
 
   fnIn = argv[1]
-  dolver = normalize_dolver(argv[2]) if argc > 2 else 'GMSJ01'
-  if dolver is None:
-    logger.error('Unknown dol version: %s'%argv[2])
-    sys.exit(1)
+  verIn = argv[2]
+  if verIn.lower() == 'all':
+    ans = ''
+    indent = '    '
+    for dolver in ['GMSJ01', 'GMSJ0A', 'GMSP01', 'GMSE01']:
+      r = asm2gecko(fnIn, dolver)
+      codes, codeSymbs, asmSymbs, isC2 = r
+      ans += f'<source version="{dolver}">\n'
+      ans += '\n'.join(indent+line for line in codes)
+      ans += '\n</source>\n'
+    pbcopy(ans)
+  else:
+    dolver = normalize_dolver(verIn) if argc > 2 else 'GMSJ01'
+    if dolver is None:
+      logger.error('Unknown dol version: %s'%argv[2])
+      sys.exit(1)
 
-  r = asm2gecko(fnIn, dolver)
-  if r is not None:
-    codes, codeSymbs, asmSymbs, isC2 = r
-    pbcopy('\n'.join(codes))
-    # print asm symbols
-    if not isC2:
-      for name, addr in asmSymbs.items():
-        print(addr.upper(), name)
+    r = asm2gecko(fnIn, dolver)
+    if r is not None:
+      codes, codeSymbs, asmSymbs, isC2 = r
+      pbcopy('\n'.join(codes))
+      # print asm symbols
+      if not isC2:
+        for name, addr in asmSymbs.items():
+          print(addr.upper(), name)
+        print()
+      # print gecko symbols
+      for name, ct, src, dst in codeSymbs:
+        print('%-2s [%08X] @[%08X] %s'%(ct, dst, src, name))
       print()
-    # print gecko symbols
-    for name, ct, src, dst in codeSymbs:
-      print('%-2s [%08X] @[%08X] %s'%(ct, dst, src, name))
-    print()
-    # code length
-    print('Code length:', len(codes), 'line(s)')
+      # code length
+      print('Code length:', len(codes), 'line(s)')
 
 if __name__ == '__main__':
   main()
