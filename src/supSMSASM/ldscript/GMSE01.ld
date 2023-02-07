@@ -2,6 +2,7 @@
 "SMS__GMSE01" = 1;
 "SMS__US" = 1;
 "$r13" = 0x804141c0;
+"gpApplication" = 0x803E9700;
 "TRK_MINNOW_DOLPHIN.TRK_memcpy" = 0x80003244;
 "TRK_MINNOW_DOLPHIN.TRK_memset" = 0x80003268;
 "TRK_MINNOW_DOLPHIN.__TRK_reset" = 0x800051cc;

@@ -204,7 +204,7 @@ def main():
     sys.exit(1)
 
   fnIn = argv[1]
-  verIn = argv[2]
+  verIn = argv[2] if len(argv) > 2 else 'JP'
   if verIn.lower() == 'all':
     ans = ''
     indent = '    '
