@@ -11,14 +11,7 @@ import re
 from collections import defaultdict, Counter
 import logging
 
-def pbcopy(content):
-  print(content) #, file=sys.stderr)
-#import win32clipboard
-#def pbcopy(content):
-#  win32clipboard.OpenClipboard()
-#  win32clipboard.EmptyClipboard()
-#  win32clipboard.SetClipboardText(content)
-#  win32clipboard.CloseClipboard()
+printCode = print
 
 logger = logging.getLogger('supSMSASM')
 loggerLevel = os.environ.get('LOG_LEVEL') or logging.INFO
@@ -109,7 +102,7 @@ def asm2gecko(fnIn, dolver):
       else:
         if name == '$$' and int(addr, 16) == 0:
           isC2 = True
-        m = re.match(r'\$(bl?|C2)\$(.*)', name)
+        m = re.match(r'\$(bl?|C[02])\$(.*)', name)
         if m is None: continue
         ct, name = m.groups()
         if name in geckoSymbs:
@@ -154,19 +147,25 @@ def asm2gecko(fnIn, dolver):
       sizes[name] = len(codeBin)-int(addr, 16)
       ## make code
       for name, (ct, src) in geckoSymbs.items():
-        if ct != 'C2': continue
         dst = asmSymbs.get(name, None)
         if dst is None: continue
         size = sizes[name]
         src = int(src, 16)
         dst = int(dst, 16)
-        c0 = 0xC200_0000 | src&0x01ff_ffff
-        c1 = (size>>3)+1
+        if ct == 'C2':
+          c0 = 0xC200_0000 | src&0x01ff_ffff
+          c1 = (size>>3)+1
+        else:
+          c0 = 0xC000_0000
+          c1 = (size+4)>>3
         append_code(c0, c1)
         ## dump code
         code = codeBin[dst:dst+size]
-        if size & 4 == 0: code += b'\x60\x00\x00\x00'
-        code += b'\x00\x00\x00\x00'
+        if ct == 'C2':
+          if size & 4 == 0: code += b'\x60\x00\x00\x00'
+          code += b'\x00\x00\x00\x00'
+        else:
+          if size & 4: code += b'\x4E\x80\x00\x20'
         dump_bin_code(code)
     else:
       ## 04 b/bl code
@@ -219,7 +218,7 @@ def main():
       ans += f'<source version="{dolver}">\n'
       ans += '\n'.join(indent+line for line in codes)
       ans += '\n</source>\n'
-    pbcopy(ans)
+    printCode(ans)
   else:
     dolver = normalize_dolver(verIn) if argc > 2 else 'GMSJ01'
     if dolver is None:
@@ -229,16 +228,14 @@ def main():
     r = asm2gecko(fnIn, dolver)
     if r is not None:
       codes, codeSymbs, asmSymbs, isC2 = r
-      pbcopy('\n'.join(codes))
+      printCode('\n'.join(codes))
       # print asm symbols
       if not isC2:
         for name, addr in asmSymbs.items():
           logger.info('%s %s', addr.upper(), name)
-        #logger.info()
       # print gecko symbols
       for name, ct, src, dst in codeSymbs:
         logger.info('%-2s [%08X] @[%08X] %s', ct, dst, src, name)
-      #logger.info()
       # code length
       logger.info('Code length: %d line(s)', len(codes))
 
