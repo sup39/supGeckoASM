@@ -11,14 +11,18 @@ import re
 from collections import defaultdict, Counter
 import logging
 
-import win32clipboard
 def pbcopy(content):
-  win32clipboard.OpenClipboard()
-  win32clipboard.EmptyClipboard()
-  win32clipboard.SetClipboardText(content)
-  win32clipboard.CloseClipboard()
+  print(content) #, file=sys.stderr)
+#import win32clipboard
+#def pbcopy(content):
+#  win32clipboard.OpenClipboard()
+#  win32clipboard.EmptyClipboard()
+#  win32clipboard.SetClipboardText(content)
+#  win32clipboard.CloseClipboard()
 
 logger = logging.getLogger('supSMSASM')
+loggerLevel = os.environ.get('LOG_LEVEL') or logging.INFO
+logger.setLevel(loggerLevel)
 
 def normalize_dolver(s):
   if re.match(r'^(?:JP?|N(?:TSC)?[-_]?J)(?:1\.?0|\.0)?$|^1\.0$|^GMSJ01$', s):
@@ -109,9 +113,10 @@ def asm2gecko(fnIn, dolver):
         if m is None: continue
         ct, name = m.groups()
         if name in geckoSymbs:
-          logger.error('Conflict symbols: $%s$, $%s$ for `%s`'%(
+          logger.error(
+            'Conflict symbols: $%s$, $%s$ for `%s`',
             geckoSymbs[name][0], ct, name,
-          ))
+          )
           return cleanup()
         geckoSymbs[name] = (ct, addr)
 
@@ -228,14 +233,14 @@ def main():
       # print asm symbols
       if not isC2:
         for name, addr in asmSymbs.items():
-          print(addr.upper(), name)
-        print()
+          logger.info('%s %s', addr.upper(), name)
+        #logger.info()
       # print gecko symbols
       for name, ct, src, dst in codeSymbs:
-        print('%-2s [%08X] @[%08X] %s'%(ct, dst, src, name))
-      print()
+        logger.info('%-2s [%08X] @[%08X] %s', ct, dst, src, name)
+      #logger.info()
       # code length
-      print('Code length:', len(codes), 'line(s)')
+      logger.info('Code length: %d line(s)', len(codes))
 
 if __name__ == '__main__':
   main()
